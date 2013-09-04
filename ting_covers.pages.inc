@@ -171,10 +171,6 @@ function _ting_covers_get_image_url_histatlas($local_id) {
   // Set to PHP output instead of JSON to retrieve the relations - in JSON they are not present
   $request->setOutputType('php');  
 
-  //TEST
-  $request->setAgency('763000');
-  $request->setProfile('opac');
-
   $histatlas_result = ting_execute_cache($request);
 
   // Get URL to image from Historisk Atlas
