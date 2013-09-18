@@ -3,16 +3,17 @@
 function template_preprocess_ting_object_cover(&$variables) {
   $object = $variables['object'] = $variables['elements']['#object'];
   $variables['image_style'] = $variables['elements']['#image_style'];
-  $ac_source = array_shift($object->reply->record['ac:source']);
-  
+  $ac_source = !empty($object->reply->record['ac:source'][''][0]) ? $object->reply->record['ac:source'][''][0] : FALSE; //array_shift($object->reply->record['ac:source']);
+  $dc_type = !empty($object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0]) ? $object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0] : $object->reply->record['dc:type'][''][0];
+
   //Set initial values required by the template
   $variables['classes'] = array(
     'ting-cover',
     'ting-cover-object-id-' . $object->localId,
     'ting-cover-style-' . $variables['image_style'],
     'ting-cover-owner-id-' . $object->ownerId,
-    'ting-cover-mtype-' . drupal_clean_css_identifier($object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0]),
-    'ting-cover-source-' . drupal_clean_css_identifier($ac_source[0]),
+    'ting-cover-mtype-' . drupal_clean_css_identifier($dc_type),
+    'ting-cover-source-' . drupal_clean_css_identifier($ac_source),
   );
   $variables['image'] = '';
 
