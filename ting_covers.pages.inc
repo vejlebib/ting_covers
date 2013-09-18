@@ -42,12 +42,26 @@ function ting_covers_objects() {
   try {
     // Calls to external image sources for specific sources
     foreach ($missing_images_local_ids as $local_id_key => $local_id) {
+
+      // Historisk Atlas sources
       if ($local_id->sourceName == 'Historisk-Atlas') {
         $covers[] = array(
           'local_id' => $local_id->localIdentifier,
           'image_style' => $image_styles[$local_id->localIdentifier],
           'url' => _ting_covers_get_image_url_histatlas($local_id), 
         ); 
+
+        // Remove from missing images array so ADDI service won't call it later
+        unset($missing_images_local_ids[$local_id_key]);
+      }
+
+      // DLB Vejle sources
+      if ($local_id->sourceName == '630-01') {
+        $covers[] = array(
+          'local_id' => $local_id->localIdentifier,
+          'image_style' => $image_styles[$local_id->localIdentifier],
+          'url' => _ting_covers_get_image_url_dlb_vejle($local_id),
+        );
 
         // Remove from missing images array so ADDI service won't call it later
         unset($missing_images_local_ids[$local_id_key]);
@@ -190,6 +204,58 @@ function _ting_covers_get_image_url_histatlas($local_id) {
 
 
 /**
+ * Helper function retrieving DLB Vejle image urls
+ *
+ * @param array $local_id
+ *    Array with details about a record from the source DLB Vejle.
+ * @return string
+ *    An URL to image at source site or a standard image.
+ */
+function _ting_covers_get_image_url_dlb_vejle($local_id) {
+  /*
+  // Call the well with agency (ex. 763000) and the 2-part identifier (owner_id:local_id, eks. 150043:3802)
+  require_once drupal_get_path('module', 'ting') . '/ting.client.inc';
+
+  $request = ting_get_request_factory()->getObjectRequest();
+
+  if ($agency = variable_get('ting_agency', FALSE)) {
+    $request->setAgency($agency);
+  }
+
+  $profile = variable_get('ting_search_profile', '');
+  if (!empty($profile) && method_exists($request, 'setProfile')) {
+    $request->setProfile($profile);
+  }
+
+  // The identifier is libraryCode (aka owner_id) + local ID
+  $request->setObjectId($local_id->libraryCode . ':' . $local_id->localIdentifier);
+  $request->setFormat('opensearchobject');
+  $request->setObjectFormat('opensearchobject');
+  $request->setAllRelations('true');
+  $request->setRelationData('full');
+  // Set to PHP output instead of JSON to retrieve the relations - in JSON they are not present
+  $request->setOutputType('php');
+
+  $histatlas_result = ting_execute_cache($request);
+
+  // Get URL to image from Historisk Atlas
+  $histatlas_url = unserialize($histatlas_result)->searchResponse->_value->result->_value->searchResult[0]->_value->collection->_value->object[0]->_value->relations->_value->relation[1]->_value->relationObject->_value->object->_value->object->_value->image->_value;
+  */
+
+  if (!empty($dlb_vejle_url)) {
+    $dlb_vejle_url = $dlb_vejle_url;
+  }
+  else {
+    $dlb_vejle_url = $GLOBALS['base_url'] . '/sites/default/files/ting/covers/defaults/dlb_vejle.png';
+  }
+
+  // TODO: Try to download the image locally.
+
+  return $dlb_vejle_url;
+}
+
+
+/**
  * Helper function returning default image for given material types
  * 
  * @param string $mtype
@@ -199,6 +265,9 @@ function _ting_covers_get_image_url_histatlas($local_id) {
  */
 function _ting_covers_get_default_image($mtype) {
   switch ($mtype) {
+    case 'Enkelte-Billeder':
+      $source_url = $GLOBALS['base_url'] . '/sites/default/files/ting/covers/defaults/dlb_vejle.png';
+      break;
     case 'Bog':
       $source_url = $GLOBALS['base_url'] . '/sites/default/files/ting/covers/defaults/bog.png';
       break;
