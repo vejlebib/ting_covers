@@ -4,7 +4,7 @@ function template_preprocess_ting_object_cover(&$variables) {
   $object = $variables['object'] = $variables['elements']['#object'];
   $variables['image_style'] = $variables['elements']['#image_style'];
   $ac_source = !empty($object->reply->record['ac:source'][''][0]) ? $object->reply->record['ac:source'][''][0] : FALSE; //array_shift($object->reply->record['ac:source']);
-  $dc_type = !empty($object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0]) ? $object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0] : $object->reply->record['dc:type'][''][0];
+  $dc_type = !empty($object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0]) ? $object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0] : (!empty($object->reply->record['dc:type'][''][0]) ? $object->reply->record['dc:type'][''][0] : FALSE);
 
   //Set initial values required by the template
   $variables['classes'] = array(
