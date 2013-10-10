@@ -1,12 +1,23 @@
 <?php
+/**
+ * @file
+ * Theme function default implementation for the module.
+ */
 
+/**
+ * Implements hook_preprocess_ting_object_cover().
+ *
+ * Default template preprocess for ting_object_cover theme function. It adds the
+ * right class to the HTML element to ensure that the image is load now or
+ * loaded by ajax if it has not been downloaded yet from moreinfo services.
+ */
 function template_preprocess_ting_object_cover(&$variables) {
   $object = $variables['object'] = $variables['elements']['#object'];
   $variables['image_style'] = $variables['elements']['#image_style'];
   $ac_source = !empty($object->reply->record['ac:source'][''][0]) ? $object->reply->record['ac:source'][''][0] : FALSE; //array_shift($object->reply->record['ac:source']);
   $dc_type = !empty($object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0]) ? $object->reply->record['dc:type']['dkdcplus:BibDK-Type'][0] : (!empty($object->reply->record['dc:type'][''][0]) ? $object->reply->record['dc:type'][''][0] : FALSE);
 
-  //Set initial values required by the template
+  // Set initial values required by the template.
   $variables['classes'] = array(
     'ting-cover',
     'ting-cover-object-id-' . $object->localId,
@@ -17,24 +28,33 @@ function template_preprocess_ting_object_cover(&$variables) {
   );
   $variables['image'] = '';
 
-  //If we already have the image available locally then just use it
+  // If we already have the image available locally then just use it.
   $path = ting_covers_object_path($object->localId);
   if (file_exists($path)) {
-    //Generate an alt tag
+    // Generate an alt tag.
     $alt = implode(', ', $object->creators) . ': ' . $object->title;
 
-    $variables['image'] = theme('image_style', array('style_name' => $variables['image_style'], 'path' => $path, 'alt' => $alt));
+    $variables['image'] = theme('image_style', array(
+      'style_name' => $variables['image_style'],
+      'path' => $path,
+      'alt' => $alt,
+    ));
 
-    //Avoid further javascript processing
+    // Avoid further javascript processing.
     $variables['classes'][] = 'ting-cover-processed';
   }
   elseif (cache_get('ting_covers:' . $object->localId)) {
-    //We know that there is no cover available for this object so avoid
-    //further javascript processing
+    // We know that there is no cover available for this object so avoid
+    // further javascript processing.
     $variables['classes'][] = 'ting-cover-processed';
   }
 }
 
+/**
+ * Implements theme_ting_object_cover().
+ *
+ * Default theme function implementation.
+ */
 function theme_ting_object_cover($variables) {
   return '<div class="' . implode(' ', $variables['classes']) . '">' . $variables['image'] . '</div>';
 }
